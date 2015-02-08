@@ -1,5 +1,5 @@
 <?php
-require_once("../../../autoloader.php");
+require_once("../../../autoload.php");
 
 /**
  * This example should output "Aaaa!!!" with level of "PARANOIA"

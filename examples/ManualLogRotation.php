@@ -1,5 +1,5 @@
 <?php
-require_once("../../../autoloader.php");
+require_once("../../../autoload.php");
 
 /**
  * This example should create file with name similar to "rotate-1423350962.log", save two lines of log there with 1s between them.

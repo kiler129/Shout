@@ -1,5 +1,5 @@
 <?php
-require_once("../../../autoloader.php");
+require_once("../../../autoload.php");
 
 /**
  * This example will print info and warning message only.

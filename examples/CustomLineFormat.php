@@ -1,5 +1,5 @@
 <?php
-require_once("../../../autoloader.php");
+require_once("../../../autoload.php");
 
 /**
  * This example should output two lines of logs similar to below:
