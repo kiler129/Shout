@@ -67,6 +67,14 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $shout->setWriteMode($mode);
     }
 
+    public function testConstructorCreatesLogFile()
+    {
+        $logFile = vfsStream::url('log/test.log');
+        new Shout($logFile, 'w');
+
+        $this->assertEquals(true, file_exists($logFile));
+    }
+
     public function testSettingWriteModeRecreatesFileHandler()
     {
         $logFile = vfsStream::url('log/test.log');
