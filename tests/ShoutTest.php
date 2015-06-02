@@ -131,6 +131,23 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @dataProvider vfsTestableWriteModesProvider
+     */
+    public function testConstructorSetsValidFileMode($mode)
+    {
+        $shout = new Shout(null, $mode);
+
+        $shoutReflection = new \ReflectionObject($shout);
+        $destinationHandler = $shoutReflection->getProperty('destinationHandler');
+        $destinationHandler->setAccessible(true);
+
+        $shout->setWriteMode($mode);
+
+        $streamMeta = stream_get_meta_data($destinationHandler->getValue($shout));
+        $this->assertEquals($mode, $streamMeta['mode'], "Failed to set for $mode");
+    }
+
+    /**
      * @dataProvider fileModesShortcutsProvider
      */
     public function testClassProvidesFileModeShortcutsWithProperValues($constantName, $constantValue)
