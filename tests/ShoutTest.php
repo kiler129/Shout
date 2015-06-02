@@ -1,8 +1,16 @@
 <?php
 namespace noFlash\Shout;
 
+use org\bovigo\vfs\vfsStream;
 
 class ShoutTest extends \PHPUnit_Framework_TestCase {
+
+    private $logRoot;
+
+    public function setUp()
+    {
+        $this->logRoot = vfsStream::setup('log');
+    }
 
     public function validWriteModesProvider()
     {
@@ -57,5 +65,16 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $shout = new Shout();
         $this->setExpectedException('\Psr\Log\InvalidArgumentException');
         $shout->setWriteMode($mode);
+    }
+
+    public function testSettingWriteModeRecreatesFileHandler()
+    {
+        $logFile = vfsStream::url('log/test.log');
+        $shout = new Shout($logFile, 'w');
+        unlink($logFile); //It's created by constructor
+
+        $this->assertEquals(false, file_exists($logFile), 'Log exists before setting write mode');
+        $shout->setWriteMode('w+');
+        $this->assertEquals(true, file_exists($logFile));
     }
 }
