@@ -17,6 +17,7 @@
         stopOnSkipped="false"
 
         verbose="true"
+        bootstrap="./vendor/autoload.php"
         >
 
     <testsuites>
