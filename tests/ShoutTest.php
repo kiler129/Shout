@@ -61,6 +61,20 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         );
     }
 
+    public function standardLogLevelsProvider()
+    {
+        return array(
+            array('EMERGENCY', 'EMERG'),
+            array('ALERT',  'ALERT'),
+            array('CRITICAL', 'CRITICAL'),
+            array('ERROR', 'ERROR'),
+            array('WARNING', 'WARN'),
+            array('NOTICE', 'NOTICE'),
+            array('INFO', 'INFO'),
+            array('DEBUG', 'DEBUG')
+        );
+    }
+
     /**
      * @dataProvider validWriteModesProvider
      */
@@ -153,5 +167,16 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $this->assertFalse(file_exists($logFile), 'Log exists before setting write mode');
         $shout->setWriteMode('w+');
         $this->assertTrue(file_exists($logFile));
+    }
+
+    /**
+     * @dataProvider standardLogLevelsProvider
+     */
+    public function testClassProvidesAllStandardLogLevels($constantName, $constantValue)
+    {
+        $constantName = '\noFlash\Shout\Shout::'.$constantName;
+
+        $this->assertTrue(defined($constantName), "Constant $constantName not found");
+        $this->assertEquals(constant($constantName), $constantValue);
     }
 }
