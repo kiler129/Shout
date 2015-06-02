@@ -27,6 +27,24 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         );
     }
 
+    /**
+     * Testing x & x+ mode using vfs is impossible.
+     *
+     * @return array
+     */
+    public function testableWriteModesProvider()
+    {
+        return array(
+            array('r+'),
+            array('w'),
+            array('w+'),
+            array('a'),
+            array('a+'),
+            array('c'),
+            array('c+')
+        );
+    }
+
     public function invalidWriteModesProvider()
     {
         return array(
@@ -65,6 +83,24 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $shout = new Shout();
         $this->setExpectedException('\Psr\Log\InvalidArgumentException');
         $shout->setWriteMode($mode);
+    }
+
+    /**
+     * @dataProvider testableWriteModesProvider
+     */
+    public function testWriteModeIsSetCorrectly($mode)
+    {
+        $logFile = vfsStream::url('log/test.log');
+        $shout = new Shout($logFile);
+
+        $shoutReflection = new \ReflectionObject($shout);
+        $destinationHandler = $shoutReflection->getProperty('destinationHandler');
+        $destinationHandler->setAccessible(true);
+
+        $shout->setWriteMode($mode);
+
+        $streamMeta = stream_get_meta_data($destinationHandler->getValue($shout));
+        $this->assertEquals($mode, $streamMeta['mode'], "Failed to set for $mode");
     }
 
     public function testConstructorCreatesLogFile()
