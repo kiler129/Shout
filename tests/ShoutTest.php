@@ -210,4 +210,47 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $shout->log('', '');
         $this->assertEquals(date('d.m.Y'), $this->logRoot->getChild('date.log')->getContent());
     }
+
+    public function testLogLineProvidesLogLevel()
+    {
+        $logFilename = 'level.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
+        $shout->setLineFormat('%2$s');
+
+        //Standard log level using log() method
+        $shout->log(Shout::INFO, '');
+        $this->assertEquals(Shout::INFO, $this->logRoot->getChild($logFilename)->getContent(), 'log() failed with INFO constant');
+    }
+
+    public function testLogLineConvertsLogLevelToUppercase()
+    {
+        $logFilename = 'levelUppercase.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
+        $shout->setLineFormat('%2$s');
+
+        //Standard log level using log() method
+        $shout->log('iNfO', '');
+        $this->assertEquals(Shout::INFO, $this->logRoot->getChild($logFilename)->getContent(), 'Standard with log() method');
+
+        //Standard log level using magic method
+        $shout->setDestination($logFilePath); //Recreate fresh log
+        $shout->info('');
+        $this->assertEquals('INFO', $this->logRoot->getChild($logFilename)->getContent(), 'Standard with magic method');
+
+        //Custom log level using log() method
+        $shout->setDestination($logFilePath); //Recreate fresh log
+        $shout->log('cUsToM', '');
+        $this->assertEquals('CUSTOM', $this->logRoot->getChild($logFilename)->getContent(), 'Custom with log() method');
+
+        //Custom log level using magic method
+        $shout->setDestination($logFilePath); //Recreate fresh log
+        $shout->cUsToM('');
+        $this->assertEquals('CUSTOM', $this->logRoot->getChild($logFilename)->getContent(), 'Custom with magic method');
+    }
+
+
 }
