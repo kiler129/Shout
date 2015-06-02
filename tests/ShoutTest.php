@@ -75,6 +75,14 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         );
     }
 
+    public function fileModesShortcutsProvider()
+    {
+        return array(
+            array('FILE_OVERWRITE', 'w'),
+            array('FILE_APPEND', 'a')
+        );
+    }
+
     /**
      * @dataProvider validWriteModesProvider
      */
@@ -119,6 +127,17 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
 
         $streamMeta = stream_get_meta_data($destinationHandler->getValue($shout));
         $this->assertEquals($mode, $streamMeta['mode'], "Failed to set for $mode");
+    }
+
+    /**
+     * @dataProvider fileModesShortcutsProvider
+     */
+    public function testClassProvidesFileModeShortcutsWithProperValues($constantName, $constantValue)
+    {
+        $constantName = '\noFlash\Shout\Shout::'.$constantName;
+
+        $this->assertTrue(defined($constantName), "Constant $constantName not found");
+        $this->assertEquals(constant($constantName), $constantValue);
     }
 
     public function testConstructorCreatesLogFile()
