@@ -35,8 +35,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
      * Testing x & x+ mode using vfs is impossible.
      *
      * @return array
+     * @uses
      */
-    public function testableWriteModesProvider()
+    public function vfsTestableWriteModesProvider()
     {
         return array(
             array('r+'),
@@ -112,7 +113,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @dataProvider testableWriteModesProvider
+     * @dataProvider vfsTestableWriteModesProvider
      */
     public function testWriteModeIsSetCorrectly($mode)
     {
