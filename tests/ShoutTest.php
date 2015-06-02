@@ -199,4 +199,15 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue(defined($constantName), "Constant $constantName not found");
         $this->assertEquals(constant($constantName), $constantValue);
     }
+
+    public function testLogLineProvidesCorrectDate()
+    {
+        $shout = new Shout(vfsStream::url('log/date.log'));
+
+        $shout->setDatetimeFormat('d.m.Y');
+        $shout->setLineFormat('%1$s');
+
+        $shout->log('', '');
+        $this->assertEquals(date('d.m.Y'), $this->logRoot->getChild('date.log')->getContent());
+    }
 }
