@@ -275,4 +275,21 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $shout->log('', $message);
         $this->assertSame($message, $this->logRoot->getChild($logFilename)->getContent());
     }
+
+    public function testLogLineContextRepresentation()
+    {
+        $logFilename = 'context.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath);
+        $shout->setLineFormat('%4$s');
+
+        $context = array(
+            'test1' => array('test2', 'test3'),
+            null
+        );
+
+        $shout->log('', '', $context);
+        $this->assertSame(print_r($context, true), $this->logRoot->getChild($logFilename)->getContent());
+    }
 }
