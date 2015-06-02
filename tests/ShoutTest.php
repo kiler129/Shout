@@ -108,7 +108,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $logFile = vfsStream::url('log/test.log');
         new Shout($logFile, 'w');
 
-        $this->assertEquals(true, file_exists($logFile));
+        $this->assertTrue(file_exists($logFile));
     }
 
     public function testSettingWriteModeRecreatesFileHandler()
@@ -117,8 +117,8 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $shout = new Shout($logFile, 'w');
         unlink($logFile); //It's created by constructor
 
-        $this->assertEquals(false, file_exists($logFile), 'Log exists before setting write mode');
+        $this->assertFalse(file_exists($logFile), 'Log exists before setting write mode');
         $shout->setWriteMode('w+');
-        $this->assertEquals(true, file_exists($logFile));
+        $this->assertTrue(file_exists($logFile));
     }
 }
