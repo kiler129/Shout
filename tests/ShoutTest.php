@@ -252,5 +252,27 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('CUSTOM', $this->logRoot->getChild($logFilename)->getContent(), 'Custom with magic method');
     }
 
+    public function logMessagesProvider()
+    {
+        return array(
+            array('Simple test'),
+            array("New\nline"),
+            array('UTF: ☃')
+        );
+    }
 
+    /**
+     * @dataProvider logMessagesProvider
+     */
+    public function testLogLineProvidesLogMessage($message)
+    {
+        $logFilename = 'message.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath);
+        $shout->setLineFormat('%3$s');
+
+        $shout->log('', $message);
+        $this->assertSame($message, $this->logRoot->getChild($logFilename)->getContent());
+    }
 }
