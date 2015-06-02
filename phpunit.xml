@@ -16,7 +16,7 @@
         stopOnIncomplete="false"
         stopOnSkipped="false"
 
-        verbose="false"
+        verbose="true"
         >
 
     <testsuites>
