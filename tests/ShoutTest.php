@@ -2,9 +2,13 @@
 namespace noFlash\Shout;
 
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 
 class ShoutTest extends \PHPUnit_Framework_TestCase {
 
+    /**
+     * @var vfsStreamDirectory
+     */
     private $logRoot;
 
     public function setUp()
@@ -109,6 +113,35 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         new Shout($logFile, 'w');
 
         $this->assertTrue(file_exists($logFile));
+    }
+
+    public function testFileCreationWithTimestamp()
+    {
+        $logFile = 'vfs://log/%d';
+        new Shout($logFile);
+
+        $files = $this->logRoot->getChildren();
+        $numberOfFiles = count($files);
+
+        $this->assertSame(1, $numberOfFiles, "Created $numberOfFiles - expected exactly one");
+
+        $actualLogFilename = reset($files)->getName();
+        $this->assertEquals(time(), $actualLogFilename, 'Invalid file created', 1);
+    }
+
+    public function testFileCreationWithDate()
+    {
+        $logFile = 'vfs://log/%2$s';
+        $shout = new Shout();
+
+        $shout->setDatetimeFormat('d.m.Y');
+        $shout->setDestination($logFile);
+
+
+        $files = $this->logRoot->getChildren();
+
+        $actualLogFilename = reset($files)->getName();
+        $this->assertEquals(date('d.m.Y'), $actualLogFilename, 'Invalid file created');
     }
 
     public function testSettingWriteModeRecreatesFileHandler()
