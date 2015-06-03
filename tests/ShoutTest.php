@@ -379,4 +379,19 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertSame($messageText, $this->logRoot->getChild($logFilename)->getContent());
     }
+
+    public function testCustomMessageWithNoLevelSetPrintsEvenIfLimitIsSet()
+    {
+        $messageText = 'test';
+        $logFilename = 'level_limit_disable_on_custom.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath);
+        $shout->setLineFormat('%3$s');
+
+        $shout->setMaximumLogLevel(-PHP_INT_MAX);
+        $shout->custom($messageText);
+
+        $this->assertSame($messageText, $this->logRoot->getChild($logFilename)->getContent());
+    }
 }
