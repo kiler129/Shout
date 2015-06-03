@@ -362,5 +362,21 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $shout->setMaximumLogLevel('test');
     }
 
+    public function testNullLogLevelLimitValueDisablesLogLimit()
+    {
+        $messageText = 'test';
+        $logFilename = 'level_limit_disable.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
 
+        $shout = new Shout($logFilePath);
+        $shout->setLineFormat('%3$s');
+
+        $shout->setMaximumLogLevel(-PHP_INT_MAX);
+        $shout->debug($messageText);
+
+        $shout->setMaximumLogLevel(null);
+        $shout->debug($messageText);
+
+        $this->assertSame($messageText, $this->logRoot->getChild($logFilename)->getContent());
+    }
 }
