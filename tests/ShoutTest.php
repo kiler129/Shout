@@ -309,4 +309,45 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $shout->log('', '', $context);
         $this->assertSame(print_r($context, true), $this->logRoot->getChild($logFilename)->getContent());
     }
+
+    public function standardLogLevelsPrioritiesProvider()
+    {
+        /* These levels should be available inside Shout class
+            self::EMERGENCY => 0,
+            self::ALERT => 1,
+            self::CRITICAL => 2,
+            self::ERROR => 3,
+            self::WARNING => 4,
+            self::NOTICE => 5,
+            self::INFO => 6,
+            self::DEBUG => 7
+        */
+
+        return array(
+            array(Shout::EMERGENCY, 999, true),
+            array(Shout::EMERGENCY, 0, true),
+            array(Shout::EMERGENCY, -1, false),
+            array(Shout::ALERT, 999, true),
+            array(Shout::ALERT, 0, false),
+            array(Shout::ALERT, 1, true),
+        );
+    }
+
+    /**
+     * @dataProvider standardLogLevelsPrioritiesProvider
+     */
+    public function testLogLevelLimitForStandardLevels($messageType, $limitLevel, $shouldPrint)
+    {
+        $messageText = 'test';
+        $logFilename = 'level_limit.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath);
+        $shout->setLineFormat('%3$s');
+        $shout->setMaximumLogLevel($limitLevel);
+
+        $shout->log($messageType, $messageText);
+
+        $this->assertSame($shouldPrint, ($this->logRoot->getChild($logFilename)->getContent() === $messageText));
+    }
 }
