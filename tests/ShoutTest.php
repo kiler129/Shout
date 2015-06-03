@@ -350,4 +350,17 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertSame($shouldPrint, ($this->logRoot->getChild($logFilename)->getContent() === $messageText));
     }
+
+    public function testNonNumericLogLevelLimitValueTriggersException()
+    {
+        $logFilename = 'level_limit.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath);
+
+        $this->setExpectedException('\Psr\Log\InvalidArgumentException', 'Maximum log level must be a number');
+        $shout->setMaximumLogLevel('test');
+    }
+
+
 }
