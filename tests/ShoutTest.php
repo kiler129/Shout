@@ -166,6 +166,12 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue(file_exists($logFile));
     }
 
+    public function testConstructorThrowsRuntimeExceptionOnInvalidFilePath()
+    {
+        $this->setExpectedExceptionRegExp('\RuntimeException', '/^Failed to open file/');
+        new Shout(vfsStream::url('unknown file path'));
+    }
+
     public function testFileCreationWithTimestamp()
     {
         $logFile = 'vfs://log/%d';
