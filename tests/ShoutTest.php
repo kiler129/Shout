@@ -394,4 +394,29 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertSame($messageText, $this->logRoot->getChild($logFilename)->getContent());
     }
+
+    public function testMaximumLogLevelLimitIgnoresCustomLogLevelMessagesRegardingToItsPriority()
+    {
+        $logFilename = 'custom_log_level_prioirty.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath, 'w');
+        $shout->setLineFormat('%3$s');
+
+        $shout->setMaximumLogLevel(10);
+        $shout->custom('1'); //It should print
+        $this->assertSame('1', $this->logRoot->getChild($logFilename)->getContent(), 'Custom message is NOT printed w/o setting level');
+
+        $shout->setLevelPriority('custom', 20);
+        $shout->custom('2'); //That should not print - maximum level set to 10 and "CUSTOM" is now level 20
+        $this->assertSame('1', $this->logRoot->getChild($logFilename)->getContent(), 'Custom message ignores level set');
+
+        $shout->setMaximumLogLevel(30);
+        $shout->custom('3'); //Changed maximum level to 30 - it should print
+        $this->assertSame('13', $this->logRoot->getChild($logFilename)->getContent(), 'Custom message is NOT printed after changing maximum level');
+
+        $shout->setLevelPriority('custom', 50);
+        $shout->custom('4'); //New level for custom is 50, maximum is set to 30 - it should not print
+        $this->assertSame('13', $this->logRoot->getChild($logFilename)->getContent(), 'Custom message is printed after changing it\'s level');
+    }
 }
