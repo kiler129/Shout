@@ -468,6 +468,17 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
             'File after rotation doesn\'t have expected content');
     }
 
+    public function testTryingToSetNonNumericRotationIntervalThrowsInvalidArgumentException()
+    {
+        $logFilename = 'static_file_rotate.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath);
+        $this->setExpectedException('\Psr\Log\InvalidArgumentException');
+
+        $shout->setRotateInerval('invalid');
+    }
+
     public function testAutomaticLogRotationWithStaticFile()
     {
         $logFilename = 'static_file_auto_rotate.log';
