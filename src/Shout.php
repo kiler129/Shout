@@ -240,6 +240,18 @@ class Shout extends AbstractLogger implements LoggerInterface
         $this->config["rotateEnabled"] = (bool)$rotate;
     }
 
+
+    /**
+     * Alias for setRotateInterval(). It SHOULD NOT be used - it was leaved to prevent breaking existing applications.
+     *
+     * @see setRotateInterval()
+     * @param integer $interval
+     * @deprecated
+     */
+    public function setRotateInerval($interval) {
+        $this->setRotateInterval($interval);
+    }
+
     /**
      * Defines how often, in seconds, rotation occurs.
      *
@@ -247,7 +259,7 @@ class Shout extends AbstractLogger implements LoggerInterface
      *
      * @throws InvalidArgumentException Non-integer interval value
      */
-    public function setRotateInerval($interval) {
+    public function setRotateInterval($interval) {
         if(!is_integer($interval)) {
             throw new InvalidArgumentException("Interval should be integer");
         }
