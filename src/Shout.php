@@ -44,7 +44,7 @@ class Shout extends AbstractLogger implements LoggerInterface
             self::INFO => 6,
             self::DEBUG => 7
         ),
-        "maximumLogLevel" => 999
+        "maximumLogLevel" => null
     );
 
     private   $destinationHandler;
@@ -94,7 +94,7 @@ class Shout extends AbstractLogger implements LoggerInterface
 
         $level = strtoupper($level);
 
-        if (isset($this->config["levelsPriorities"][$level]) && $this->config["levelsPriorities"][$level] > $this->config["maximumLogLevel"]) {
+        if ($this->config["maximumLogLevel"] !== null && isset($this->config["levelsPriorities"][$level]) && $this->config["levelsPriorities"][$level] > $this->config["maximumLogLevel"]) {
             return;
         }
 
@@ -307,8 +307,8 @@ class Shout extends AbstractLogger implements LoggerInterface
      * @throws InvalidArgumentException Non-numeric level passed
      */
     public function setMaximumLogLevel($level) {
-        if(!is_numeric($level)) {
-            throw new InvalidArgumentException("Maximum log level must be a number");
+        if($level !== null && !is_numeric($level)) {
+            throw new InvalidArgumentException("Maximum log level must be a number or null");
         }
 
         $this->config["maximumLogLevel"] = $level;
