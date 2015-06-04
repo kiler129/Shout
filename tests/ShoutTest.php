@@ -512,4 +512,29 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('12', reset($files)->getContent(), 'File before rotation doesn\'t have expected content');
         $this->assertContains('34', end($files)->getContent(), 'File after rotation doesn\'t have expected content');
     }
+
+    public function testManualLogRotationResetsAutomaticRotationTimerByDefault()
+    {
+        $logFilePath = vfsStream::url('log/%d');
+
+        $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
+        $shout->setLineFormat('%3$s');
+        $shout->setRotateInerval(5);
+        $shout->setRotate(true);
+
+        sleep(3);
+        $shout->info('1'); //1st log file
+        sleep(2);
+        $shout->rotate();
+        $shout->debug('2'); //2nd log file
+        sleep(1);
+        //3+2+1=6s elapsed since start, log was rotated - if time wasn't reset since then it will trigger next rotation and end up in 3rd log file
+        $shout->debug('3'); //...but it should in 2nd!
+
+        $files = $this->logRoot->getChildren();
+        $this->assertCount(2, $files, 'Invalid number of files created');
+
+        reset($files);
+        $this->assertSame('23', next($files)->getContent(), 'Wrong 2nd log file contents');
+    }
 }
