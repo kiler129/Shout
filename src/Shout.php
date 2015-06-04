@@ -340,7 +340,7 @@ class Shout extends AbstractLogger implements LoggerInterface
                         date($this->config["datetimeFormat"])
                        );
 
-        $this->destinationHandler = fopen($path, $this->config["writeMode"]);
+        $this->destinationHandler = @fopen($path, $this->config["writeMode"]);
         if(!$this->config["blocking"]) {
             stream_set_blocking($this->destinationHandler, (int)$this->config["blocking"]);
         }
