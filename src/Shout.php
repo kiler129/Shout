@@ -94,7 +94,7 @@ class Shout extends AbstractLogger implements LoggerInterface
 
         $level = strtoupper($level);
 
-        if (isset($this->config["levelsPriorities"][$level]) && $this->config["levelsPriorities"][$level] > $this->config["maximumLogLevel"]) {
+        if ($this->config["maximumLogLevel"] !== null && isset($this->config["levelsPriorities"][$level]) && $this->config["levelsPriorities"][$level] > $this->config["maximumLogLevel"]) {
             return;
         }
 
