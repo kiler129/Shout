@@ -467,4 +467,25 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('after rotation', end($files)->getContent(),
             'File after rotation doesn\'t have expected content');
     }
+
+    public function testAutomaticLogRotationWithStaticFile()
+    {
+        $logFilename = 'static_file_auto_rotate.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
+        $shout->setLineFormat('%3$s');
+        $shout->setRotateInerval(2);
+        $shout->setRotate(true);
+
+        $shout->info('1');
+        $shout->debug('2');
+
+        sleep(3);
+
+        $shout->info('3');
+        $shout->debug('4');
+
+        $this->assertSame('34', $this->logRoot->getChild($logFilename)->getContent());
+    }
 }
