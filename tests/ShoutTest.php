@@ -17,6 +17,12 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->logRoot = vfsStream::setup('log');
     }
 
+    public function testImplementsLoggerInterface()
+    {
+        $shoutReflection = new \ReflectionClass('\noFlash\Shout\Shout');
+        $this->assertTrue($shoutReflection->isSubclassOf('\Psr\Log\LoggerInterface'));
+    }
+
     public function validWriteModesProvider()
     {
         return array(
