@@ -456,7 +456,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $files = $this->logRoot->getChildren();
         $this->assertCount(2, $files, 'Invalid number of files (should be two)');
 
-        $this->assertRegExp('/before rotation/', reset($files)->getContent(), 'File before rotation doesn\'t have expected content');
-        $this->assertRegExp('/after rotation/', end($files)->getContent(), 'File after rotation doesn\'t have expected content');
+        $this->assertContains('before rotation', reset($files)->getContent(), 'File before rotation doesn\'t have expected content');
+        $this->assertContains('after rotation', end($files)->getContent(), 'File after rotation doesn\'t have expected content');
     }
 }
