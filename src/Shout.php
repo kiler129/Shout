@@ -1,8 +1,8 @@
 <?php
 namespace noFlash\Shout;
 
-use Psr\Log\InvalidArgumentException;
 use Psr\Log\AbstractLogger;
+use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -15,8 +15,6 @@ class Shout extends AbstractLogger implements LoggerInterface
 {
     const FILE_OVERWRITE = "w";
     const FILE_APPEND    = "a";
-    private $validWriteModes = array("r+", "w", "w+", "a", "a+", "x", "x+", "c", "c+");
-
     const EMERGENCY = 'EMERG';
     const ALERT     = 'ALERT';
     const CRITICAL  = 'CRITICAL';
@@ -25,7 +23,7 @@ class Shout extends AbstractLogger implements LoggerInterface
     const NOTICE    = 'NOTICE';
     const INFO      = 'INFO';
     const DEBUG     = 'DEBUG';
-
+    private $validWriteModes = array("r+", "w", "w+", "a", "a+", "x", "x+", "c", "c+");
     private $config = array(
         "destination" => "php://stdout", //Variables: %1$s - date, %2$s - unix timestamp
         "writeMode" => self::FILE_APPEND,
@@ -47,9 +45,9 @@ class Shout extends AbstractLogger implements LoggerInterface
         "maximumLogLevel" => null
     );
 
-    private   $destinationHandler;
-    private   $lastRotationTime;
-    private   $asyncBuffer;
+    private $destinationHandler;
+    private $lastRotationTime;
+    private $asyncBuffer;
 
     /**
      * @param string $destination
@@ -63,11 +61,11 @@ class Shout extends AbstractLogger implements LoggerInterface
     {
         $this->lastRotationTime = time();
 
-        if($destination !== null) {
+        if ($destination !== null) {
             $this->setDestination($destination);
         }
 
-        if($mode !== null) {
+        if ($mode !== null) {
             $this->setWriteMode($mode); //It calls $this->createFileHandler(); internally
 
         } else {
@@ -75,56 +73,84 @@ class Shout extends AbstractLogger implements LoggerInterface
         }
     }
 
-    public function __destruct() {
-        if($this->config["blocking"]) {
+    /**
+     * Specifies log destination, you can use any valid file path or stream location supports writting.
+     * You can also use %1$s for current unix timestamp or %2$s for current date (formated according to datetimeFormat).
+     * This method will cause file to be re-opened.
+     *
+     * @param string $destination
+     */
+    public function setDestination($destination)
+    {
+        $this->config["destination"] = $destination;
+        $this->createFileHandler();
+    }
+
+    /**
+     * Creates file handler to handle log writes
+     * There are 6 modifiers:
+     *  %1$s - unix timestamp
+     *  %2$s - date
+     *
+     * @throws RuntimeException Thrown if file cannot be opened for write
+     */
+    private function createFileHandler()
+    {
+        $path = sprintf($this->config["destination"], time(), date($this->config["datetimeFormat"]));
+
+        $this->destinationHandler = @fopen($path, $this->config["writeMode"]);
+        if (!$this->config["blocking"]) {
+            stream_set_blocking($this->destinationHandler, (int)$this->config["blocking"]);
+        }
+
+        if (!$this->destinationHandler) {
+            throw new RuntimeException("Failed to open file $path created from " . $this->config["destination"] . " expression (mode: " . $this->config["writeMode"] . ")");
+        }
+    }
+
+    /**
+     * This method accepts any valid fopen() mode which allows writting.
+     * Using this method will re-open file.
+     *
+     * @param string $mode Any valid fopen() mode allowing writting
+     *
+     * @throws InvalidArgumentException Invalid mode
+     */
+    public function setWriteMode($mode)
+    {
+        if (!in_array($mode, $this->validWriteModes, true)) {
+            throw new InvalidArgumentException("Invalid write mode specified: $mode");
+        }
+
+        $this->config["writeMode"] = $mode;
+        $this->createFileHandler();
+    }
+
+    public function __destruct()
+    {
+        if ($this->config["blocking"]) {
             return;
         }
 
-        while(!empty($this->asyncBuffer)) {
+        while (!empty($this->asyncBuffer)) {
             $this->flush();
         }
     }
 
     /**
-     * {@inheritdoc}
-     * @todo Docbug - $context["exception"] aren't detected as Exception instance
+     * Forces pushing remaining data from buffer to destination.
+     * This method only makes sense in non-blocking mode.
+     *
+     * @return bool
      */
-    public function log($level, $message, array $context = array())
+    public function flush()
     {
-
-        $level = strtoupper($level);
-
-        if ($this->config["maximumLogLevel"] !== null && isset($this->config["levelsPriorities"][$level]) && $this->config["levelsPriorities"][$level] > $this->config["maximumLogLevel"]) {
-            return;
-        }
-
-        $time = time();
-        if ($this->config["rotateEnabled"] &&
-            ($time - $this->lastRotationTime) > $this->config["rotationInterval"]) {
-            $this->rotate();
-        }
-
-        $contextText = "";
-        if (!empty($context) && is_array($context)) {
-            $contextText = print_r($context, true);
-        }
-
-        $message = sprintf($this->config["lineFormat"],
-            date($this->config["datetimeFormat"]), //%1$s - date
-            $level, //%2$s - log level
-            $message, //%3$s - text
-            $contextText, //%4$s - context
-            time() //%d - unix timestamp
-        );
-
-        if($this->config["blocking"]) {
-            fwrite($this->destinationHandler, $message);
-
-        } else {
-            $this->asyncBuffer .= $message;
+        if (!$this->config["blocking"] && !empty($this->asyncBuffer)) {
             $wrote = fwrite($this->destinationHandler, $this->asyncBuffer);
             $this->asyncBuffer = substr($this->asyncBuffer, $wrote);
         }
+
+        return empty($this->asyncBuffer);
     }
 
     /**
@@ -145,70 +171,66 @@ class Shout extends AbstractLogger implements LoggerInterface
     }
 
     /**
+     * {@inheritdoc}
+     * @todo Docbug - $context["exception"] aren't detected as Exception instance
+     */
+    public function log($level, $message, array $context = array())
+    {
+
+        $level = strtoupper($level);
+
+        if ($this->config["maximumLogLevel"] !== null && isset($this->config["levelsPriorities"][$level]) && $this->config["levelsPriorities"][$level] > $this->config["maximumLogLevel"]) {
+            return;
+        }
+
+        $time = time();
+        if ($this->config["rotateEnabled"] && ($time - $this->lastRotationTime) > $this->config["rotationInterval"]) {
+            $this->rotate();
+        }
+
+        $contextText = "";
+        if (!empty($context) && is_array($context)) {
+            $contextText = print_r($context, true);
+        }
+
+        $message = sprintf($this->config["lineFormat"], date($this->config["datetimeFormat"]), //%1$s - date
+            $level, //%2$s - log level
+            $message, //%3$s - text
+            $contextText, //%4$s - context
+            time() //%d - unix timestamp
+        );
+
+        if ($this->config["blocking"]) {
+            fwrite($this->destinationHandler, $message);
+
+        } else {
+            $this->asyncBuffer .= $message;
+            $wrote = fwrite($this->destinationHandler, $this->asyncBuffer);
+            $this->asyncBuffer = substr($this->asyncBuffer, $wrote);
+        }
+    }
+
+    /**
      * Rotate log file
      *
      * @param bool $resetTimer
+     *
      * @throws RuntimeException Thrown if new file cannot be opened for write
      */
-    public function rotate($resetTimer=true)
+    public function rotate($resetTimer = true)
     {
-        if(!$this->config["blocking"]) {
-            while(!empty($this->asyncBuffer)) {
+        if (!$this->config["blocking"]) {
+            while (!empty($this->asyncBuffer)) {
                 $this->flush();
             }
         }
 
-        if($resetTimer) {
+        if ($resetTimer) {
             $this->lastRotationTime = time();
         }
 
         $this->log(self::INFO, "Rotating log file...");
         fclose($this->destinationHandler);
-        $this->createFileHandler();
-    }
-
-
-    /**
-     * Forces pushing remaining data from buffer to destination.
-     * This method only makes sense in non-blocking mode.
-     *
-     * @return bool
-     */
-    public function flush() {
-        if(!$this->config["blocking"] && !empty($this->asyncBuffer)) {
-            $wrote = fwrite($this->destinationHandler, $this->asyncBuffer);
-            $this->asyncBuffer = substr($this->asyncBuffer, $wrote);
-        }
-
-        return empty($this->asyncBuffer);
-    }
-
-    /**
-     * Specifies log destination, you can use any valid file path or stream location supports writting.
-     * You can also use %1$s for current unix timestamp or %2$s for current date (formated according to datetimeFormat).
-     * This method will cause file to be re-opened.
-     *
-     * @param string $destination
-     */
-    public function setDestination($destination) {
-        $this->config["destination"] = $destination;
-        $this->createFileHandler();
-    }
-
-    /**
-     * This method accepts any valid fopen() mode which allows writting.
-     * Using this method will re-open file.
-     *
-     * @param string $mode Any valid fopen() mode allowing writting
-     *
-     * @throws InvalidArgumentException Invalid mode
-     */
-    public function setWriteMode($mode) {
-        if(!in_array($mode, $this->validWriteModes, true)) {
-            throw new InvalidArgumentException("Invalid write mode specified: $mode");
-        }
-
-        $this->config["writeMode"] = $mode;
         $this->createFileHandler();
     }
 
@@ -219,13 +241,15 @@ class Shout extends AbstractLogger implements LoggerInterface
      * buffer can be written next attempt will be made on next message or after calling flush().
      *
      * @param bool $blocking
+     *
      * @see flush()
      */
-    public function setBlocking($blocking) {
+    public function setBlocking($blocking)
+    {
         $this->config["blocking"] = (bool)$blocking;
 
-        if(!$this->config["blocking"]) {
-            while(!empty($this->asyncBuffer)) {
+        if (!$this->config["blocking"]) {
+            while (!empty($this->asyncBuffer)) {
                 $this->flush();
             }
         }
@@ -236,19 +260,22 @@ class Shout extends AbstractLogger implements LoggerInterface
      *
      * @param bool $rotate
      */
-    public function setRotate($rotate) {
+    public function setRotate($rotate)
+    {
         $this->config["rotateEnabled"] = (bool)$rotate;
     }
-
 
     /**
      * Alias for setRotateInterval(). It SHOULD NOT be used - it was leaved to prevent breaking existing applications.
      *
      * @see setRotateInterval()
+     *
      * @param integer $interval
+     *
      * @deprecated
      */
-    public function setRotateInerval($interval) {
+    public function setRotateInerval($interval)
+    {
         $this->setRotateInterval($interval);
     }
 
@@ -259,8 +286,9 @@ class Shout extends AbstractLogger implements LoggerInterface
      *
      * @throws InvalidArgumentException Non-integer interval value
      */
-    public function setRotateInterval($interval) {
-        if(!is_integer($interval)) {
+    public function setRotateInterval($interval)
+    {
+        if (!is_integer($interval)) {
             throw new InvalidArgumentException("Interval should be integer");
         }
 
@@ -278,23 +306,25 @@ class Shout extends AbstractLogger implements LoggerInterface
      *  %d - unix timestamp
      *
      * @param string $format
+     *
      * @see print_r()
      */
-    public function setLineFormat($format) {
+    public function setLineFormat($format)
+    {
         $this->config["lineFormat"] = $format;
     }
-
 
     /**
      * Accepts any date() compilant format.
      *
      * @param $format
+     *
      * @see date()
      */
-    public function setDatetimeFormat($format) {
+    public function setDatetimeFormat($format)
+    {
         $this->config["datetimeFormat"] = $format;
     }
-
 
     /**
      * Every log level contains it's numeric value (default ones are defined by `Table 2. Syslog Message Severities` of
@@ -306,14 +336,14 @@ class Shout extends AbstractLogger implements LoggerInterface
      *
      * @throws InvalidArgumentException Non-numeric level passed
      */
-    public function setMaximumLogLevel($level) {
-        if($level !== null && !is_numeric($level)) {
+    public function setMaximumLogLevel($level)
+    {
+        if ($level !== null && !is_numeric($level)) {
             throw new InvalidArgumentException("Maximum log level must be a number or null");
         }
 
         $this->config["maximumLogLevel"] = $level;
     }
-
 
     /**
      * Defines log level priority
@@ -326,30 +356,5 @@ class Shout extends AbstractLogger implements LoggerInterface
     {
         $level = strtoupper($level);
         $this->config["levelsPriorities"][$level] = $priority;
-    }
-
-    /**
-     * Creates file handler to handle log writes
-     * There are 6 modifiers:
-     *  %1$s - unix timestamp
-     *  %2$s - date
-     *
-     * @throws RuntimeException Thrown if file cannot be opened for write
-     */
-    private function createFileHandler()
-    {
-        $path = sprintf($this->config["destination"],
-                        time(),
-                        date($this->config["datetimeFormat"])
-                       );
-
-        $this->destinationHandler = @fopen($path, $this->config["writeMode"]);
-        if(!$this->config["blocking"]) {
-            stream_set_blocking($this->destinationHandler, (int)$this->config["blocking"]);
-        }
-
-        if (!$this->destinationHandler) {
-            throw new RuntimeException("Failed to open file $path created from " .$this->config["destination"]. " expression (mode: " . $this->config["writeMode"] . ")");
-        }
     }
 }
