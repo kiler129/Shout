@@ -488,4 +488,28 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('34', $this->logRoot->getChild($logFilename)->getContent());
     }
+
+    public function testAutomaticRotationWithDynamicFile()
+    {
+        $logFilePath = vfsStream::url('log/%d');
+
+        $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
+        $shout->setLineFormat('%3$s');
+        $shout->setRotateInerval(2);
+        $shout->setRotate(true);
+
+        $shout->info('1');
+        $shout->debug('2');
+
+        sleep(3);
+
+        $shout->info('3');
+        $shout->debug('4');
+
+        $files = $this->logRoot->getChildren();
+        $this->assertCount(2, $files, 'Invalid number of files (should be two)');
+
+        $this->assertContains('12', reset($files)->getContent(), 'File before rotation doesn\'t have expected content');
+        $this->assertContains('34', end($files)->getContent(), 'File after rotation doesn\'t have expected content');
+    }
 }
