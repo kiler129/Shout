@@ -307,8 +307,8 @@ class Shout extends AbstractLogger implements LoggerInterface
      * @throws InvalidArgumentException Non-numeric level passed
      */
     public function setMaximumLogLevel($level) {
-        if(!is_numeric($level)) {
-            throw new InvalidArgumentException("Maximum log level must be a number");
+        if($level !== null && !is_numeric($level)) {
+            throw new InvalidArgumentException("Maximum log level must be a number or null");
         }
 
         $this->config["maximumLogLevel"] = $level;
