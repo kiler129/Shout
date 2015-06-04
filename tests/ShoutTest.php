@@ -194,8 +194,8 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $shout->setDatetimeFormat('d.m.Y');
         $shout->setDestination($logFile);
 
-
         $files = $this->logRoot->getChildren();
+        $this->assertCount(1, $files, 'Invalid number of files created');
 
         $actualLogFilename = reset($files)->getName();
         $this->assertEquals(date('d.m.Y'), $actualLogFilename, 'Invalid file created');
