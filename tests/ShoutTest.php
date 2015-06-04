@@ -476,7 +476,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $shout = new Shout($logFilePath);
         $this->setExpectedException('\Psr\Log\InvalidArgumentException');
 
-        $shout->setRotateInerval('invalid');
+        $shout->setRotateInterval('invalid');
     }
 
     public function testAutomaticLogRotationWithStaticFile()
@@ -486,7 +486,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
 
         $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
         $shout->setLineFormat('%3$s');
-        $shout->setRotateInerval(2);
+        $shout->setRotateInterval(2);
         $shout->setRotate(true);
 
         $shout->info('1');
@@ -506,7 +506,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
 
         $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
         $shout->setLineFormat('%3$s');
-        $shout->setRotateInerval(2);
+        $shout->setRotateInterval(2);
         $shout->setRotate(true);
 
         $shout->info('1');
@@ -530,7 +530,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
 
         $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
         $shout->setLineFormat('%3$s');
-        $shout->setRotateInerval(5);
+        $shout->setRotateInterval(5);
         $shout->setRotate(true);
 
         sleep(3);
@@ -556,7 +556,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
 
         $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
         $shout->setLineFormat('%3$s');
-        $shout->setRotateInerval(5);
+        $shout->setRotateInterval(5);
         $shout->setRotate(true);
 
         sleep(3);
