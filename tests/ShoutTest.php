@@ -23,6 +23,12 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($shoutReflection->isSubclassOf('\Psr\Log\LoggerInterface'));
     }
 
+    public function testExtendsAbstractLogger()
+    {
+        $shoutReflection = new \ReflectionClass('\noFlash\Shout\Shout');
+        $this->assertTrue($shoutReflection->isSubclassOf('\Psr\Log\AbstractLogger'));
+    }
+
     public function validWriteModesProvider()
     {
         return array(
