@@ -9,7 +9,7 @@ use noFlash\Shout\Shout;
 
 $logger = new Shout("rotate-%s.log");
 $logger->setRotate(true);
-$logger->setRotateInerval(2);
+$logger->setRotateInterval(2);
 
 //These two lines will be saved to first file
 $logger->info("Test");
