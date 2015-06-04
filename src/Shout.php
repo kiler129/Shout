@@ -27,7 +27,7 @@ class Shout extends AbstractLogger implements LoggerInterface
     const DEBUG     = 'DEBUG';
 
     private $config = array(
-        "destination" => "php://stdout", //Variables: %s - date, %d - unix timestamp
+        "destination" => "php://stdout", //Variables: %1$s - date, %2$s - unix timestamp
         "writeMode" => self::FILE_APPEND,
         "blocking" => true,
         "rotateEnabled" => false,
@@ -330,6 +330,9 @@ class Shout extends AbstractLogger implements LoggerInterface
 
     /**
      * Creates file handler to handle log writes
+     * There are 6 modifiers:
+     *  %1$s - unix timestamp
+     *  %2$s - date
      *
      * @throws RuntimeException Thrown if file cannot be opened for write
      */

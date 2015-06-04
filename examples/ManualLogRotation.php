@@ -7,7 +7,7 @@ require_once("../../../autoload.php");
  */
 use noFlash\Shout\Shout;
 
-$logger = new Shout("rotate-%s.log");
+$logger = new Shout("rotate-%1$s.log");
 $logger->setRotate(true);
 
 //These two lines will be saved to first file

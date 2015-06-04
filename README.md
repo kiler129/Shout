@@ -14,7 +14,7 @@ Yes, it was created to blame you for every failure (which may not even be yours)
 
 ### Installation
 #### Using composer
-Composer is recommended method of installation due to it's simplicity and automatic dependencies managment.
+Composer is recommended method of installation due to it's simplicity and automatic dependencies management.
 
   0. You need composer of course - [installation takes less than a minute](https://getcomposer.org/download/)
   1. Run `php composer.phar require noflash/shout` in your favourite terminal to install Shout with dependencies
