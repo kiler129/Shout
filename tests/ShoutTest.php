@@ -4,7 +4,8 @@ namespace noFlash\Shout;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
-class ShoutTest extends \PHPUnit_Framework_TestCase {
+class ShoutTest extends \PHPUnit_Framework_TestCase
+{
 
     /**
      * @var vfsStreamDirectory
@@ -66,7 +67,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
     {
         return array(
             array('EMERGENCY', 'EMERG'),
-            array('ALERT',  'ALERT'),
+            array('ALERT', 'ALERT'),
             array('CRITICAL', 'CRITICAL'),
             array('ERROR', 'ERROR'),
             array('WARNING', 'WARN'),
@@ -152,7 +153,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
      */
     public function testClassProvidesFileModeShortcutsWithProperValues($constantName, $constantValue)
     {
-        $constantName = '\noFlash\Shout\Shout::'.$constantName;
+        $constantName = '\noFlash\Shout\Shout::' . $constantName;
 
         $this->assertTrue(defined($constantName), "Constant $constantName not found");
         $this->assertEquals(constant($constantName), $constantValue);
@@ -216,7 +217,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
      */
     public function testClassProvidesAllStandardLogLevels($constantName, $constantValue)
     {
-        $constantName = '\noFlash\Shout\Shout::'.$constantName;
+        $constantName = '\noFlash\Shout\Shout::' . $constantName;
 
         $this->assertTrue(defined($constantName), "Constant $constantName not found");
         $this->assertEquals(constant($constantName), $constantValue);
@@ -243,7 +244,8 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
 
         //Standard log level using log() method
         $shout->log(Shout::INFO, '');
-        $this->assertEquals(Shout::INFO, $this->logRoot->getChild($logFilename)->getContent(), 'log() failed with INFO constant');
+        $this->assertEquals(Shout::INFO, $this->logRoot->getChild($logFilename)->getContent(),
+            'log() failed with INFO constant');
     }
 
     public function testLogLineConvertsLogLevelToUppercase()
@@ -256,7 +258,8 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
 
         //Standard log level using log() method
         $shout->log('iNfO', '');
-        $this->assertEquals(Shout::INFO, $this->logRoot->getChild($logFilename)->getContent(), 'Standard with log() method');
+        $this->assertEquals(Shout::INFO, $this->logRoot->getChild($logFilename)->getContent(),
+            'Standard with log() method');
 
         //Standard log level using magic method
         $shout->setDestination($logFilePath); //Recreate fresh log
@@ -410,19 +413,23 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
 
         $shout->setMaximumLogLevel(10);
         $shout->custom('1'); //It should print
-        $this->assertSame('1', $this->logRoot->getChild($logFilename)->getContent(), 'Custom message is NOT printed w/o setting level');
+        $this->assertSame('1', $this->logRoot->getChild($logFilename)->getContent(),
+            'Custom message is NOT printed w/o setting level');
 
         $shout->setLevelPriority('custom', 20);
         $shout->custom('2'); //That should not print - maximum level set to 10 and "CUSTOM" is now level 20
-        $this->assertSame('1', $this->logRoot->getChild($logFilename)->getContent(), 'Custom message ignores level set');
+        $this->assertSame('1', $this->logRoot->getChild($logFilename)->getContent(),
+            'Custom message ignores level set');
 
         $shout->setMaximumLogLevel(30);
         $shout->custom('3'); //Changed maximum level to 30 - it should print
-        $this->assertSame('13', $this->logRoot->getChild($logFilename)->getContent(), 'Custom message is NOT printed after changing maximum level');
+        $this->assertSame('13', $this->logRoot->getChild($logFilename)->getContent(),
+            'Custom message is NOT printed after changing maximum level');
 
         $shout->setLevelPriority('custom', 50);
         $shout->custom('4'); //New level for custom is 50, maximum is set to 30 - it should not print
-        $this->assertSame('13', $this->logRoot->getChild($logFilename)->getContent(), 'Custom message is printed after changing it\'s level');
+        $this->assertSame('13', $this->logRoot->getChild($logFilename)->getContent(),
+            'Custom message is printed after changing it\'s level');
     }
 
     public function testUsingManualRotationWithStaticFileRecreatesClearsFileUsed()
@@ -455,7 +462,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $files = $this->logRoot->getChildren();
         $this->assertCount(2, $files, 'Invalid number of files (should be two)');
 
-        $this->assertContains('before rotation', reset($files)->getContent(), 'File before rotation doesn\'t have expected content');
-        $this->assertContains('after rotation', end($files)->getContent(), 'File after rotation doesn\'t have expected content');
+        $this->assertContains('before rotation', reset($files)->getContent(),
+            'File before rotation doesn\'t have expected content');
+        $this->assertContains('after rotation', end($files)->getContent(),
+            'File after rotation doesn\'t have expected content');
     }
 }
