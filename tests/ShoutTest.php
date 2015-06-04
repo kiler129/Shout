@@ -207,9 +207,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $shout = new Shout($logFile, 'w');
         unlink($logFile); //It's created by constructor
 
-        $this->assertFalse(file_exists($logFile), 'Log exists before setting write mode');
+        $this->assertFileNotExists($logFile, 'Log exists before setting write mode');
         $shout->setWriteMode('w+');
-        $this->assertTrue(file_exists($logFile));
+        $this->assertFileExists($logFile);
     }
 
     /**
