@@ -178,9 +178,8 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         new Shout($logFile);
 
         $files = $this->logRoot->getChildren();
-        $numberOfFiles = count($files);
 
-        $this->assertSame(1, $numberOfFiles, "Created $numberOfFiles - expected exactly one");
+        $this->assertCount(1, $files, "Created more than one file");
 
         $actualLogFilename = reset($files)->getName();
         $this->assertEquals(time(), $actualLogFilename, 'Invalid file created', 1);
