@@ -44,7 +44,7 @@ class Shout extends AbstractLogger implements LoggerInterface
             self::INFO => 6,
             self::DEBUG => 7
         ),
-        "maximumLogLevel" => 999
+        "maximumLogLevel" => null
     );
 
     private   $destinationHandler;
