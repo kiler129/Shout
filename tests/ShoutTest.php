@@ -537,4 +537,28 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         reset($files);
         $this->assertSame('23', next($files)->getContent(), 'Wrong 2nd log file contents');
     }
+
+
+    public function testManualLogRotationDoNotResetsAutomaticRotationTimerIfCalledWithFalseAsArgument()
+    {
+        $logFilePath = vfsStream::url('log/%d');
+
+        $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
+        $shout->setLineFormat('%3$s');
+        $shout->setRotateInerval(5);
+        $shout->setRotate(true);
+
+        sleep(3);
+        $shout->info('1'); //1st log file
+        sleep(2);
+        $shout->rotate(false);
+        $shout->debug('2'); //2nd log file
+        sleep(1);
+        $shout->debug('3');
+
+        $files = $this->logRoot->getChildren();
+        $this->assertCount(3, $files, 'Invalid number of files created');
+
+        $this->assertSame('3', end($files)->getContent(), 'Wrong 3rd log file contents');
+    }
 }
