@@ -204,7 +204,7 @@ class Shout extends AbstractLogger implements LoggerInterface
      * @throws InvalidArgumentException Invalid mode
      */
     public function setWriteMode($mode) {
-        if(!in_array($mode, $this->validWriteModes)) {
+        if(!in_array($mode, $this->validWriteModes, true)) {
             throw new InvalidArgumentException("Invalid write mode specified: $mode");
         }
 
