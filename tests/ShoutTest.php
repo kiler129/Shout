@@ -425,4 +425,19 @@ class ShoutTest extends \PHPUnit_Framework_TestCase {
         $shout->custom('4'); //New level for custom is 50, maximum is set to 30 - it should not print
         $this->assertSame('13', $this->logRoot->getChild($logFilename)->getContent(), 'Custom message is printed after changing it\'s level');
     }
+
+    public function testUsingManualRotationWithStaticFileRecreatesClearsFileUsed()
+    {
+        $logFilename = 'static_file_rotate.log';
+        $logFilePath = vfsStream::url('log/' . $logFilename);
+
+        $shout = new Shout($logFilePath, Shout::FILE_OVERWRITE);
+        $shout->setLineFormat('%3$s');
+
+        $shout->info('before rotation');
+        $shout->rotate();
+        $shout->info('after rotation');
+
+        $this->assertSame('after rotation', $this->logRoot->getChild($logFilename)->getContent());
+    }
 }
