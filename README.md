@@ -1,3 +1,9 @@
+# PROJECT ARCHIVED
+
+The code should still work. However, this project is no longer maintained. Use [Symfony Logger](https://symfony.com/doc/current/logging.html) or [Monolog](https://github.com/Seldaek/monolog) instead.
+
+---
+
 # Shout! [![Build Status](https://travis-ci.org/kiler129/Shout.svg?branch=master)](https://travis-ci.org/kiler129/Shout)
 Small, fast and PSR-3 compliant logging library.
 Yes, it was created to blame you for every failure (which may not even be yours).
